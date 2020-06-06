@@ -1,24 +1,60 @@
-let app = require("express")();
-let http = require("http").createServer(app);
-let io = require("socket.io")(http);
+const express = require("express");
+const hbs = require("express-handlebars");
+const path = require("path");
+const bodyParser = require("body-parser");
+const app = express();
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+require("dotenv").config();
+const PORT = process.env.PORT;
+const mongoose = require("mongoose");
+
+const User = require("./models/user");
+
+mongoose.connect(`${process.env.DatabaseURL}`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-//   socket.on("disconnect", () => {
-//     console.log("user disconnected");
-//   });
-// });
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-io.on("connection", (socket) => {
-  socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
+app.engine(
+  ".hbs",
+  hbs({
+    defaultLayout: "layout",
+    extname: "hbs",
+  })
+);
+app.set("view engine", ".hbs");
+
+app.get("/", async (req, res) => {
+  let user = await User.find({});
+  let userArr = user.map((user) => user.toObject());
+
+  res.render("index", { userArr });
+});
+
+app.post("/", async (req, res) => {
+  let { name, email, password } = req.body;
+  const user = new User({
+    name,
+    email,
+    password,
   });
+
+  await user.save();
+
+  res.redirect("/profile");
 });
 
-http.listen(3000, () => {
-  console.log("listening on 3000.");
+app.get("/profile", async (req, res) => {
+  let user = await User.find({});
+  let userArr = user.map((user) => user.toObject());
+
+  res.render("profile", { userArr });
+});
+
+app.listen(PORT || 3000, () => {
+  console.log(`server listening on ${PORT}`);
 });
