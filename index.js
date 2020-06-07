@@ -35,6 +35,12 @@ app.get("/", async (req, res) => {
   res.render("index", { userArr });
 });
 
+app.get('/user/:id', async (req, res) => {
+  let user = await User.findById(req.params.id);
+  // let id = req.params.id;
+  res.render('user', {user})
+})
+
 app.post("/", async (req, res) => {
   let { name, email, password } = req.body;
   const user = new User({
