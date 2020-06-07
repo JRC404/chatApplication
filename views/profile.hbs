@@ -1,6 +1,6 @@
 <h1>All users</h1>
-
 {{#each userArr}}
-{{log this.id}}
-<p><a href="/user/{{this.id}}">Name : {{this.name}} </a></p>
+{{!-- {{log this.id}} --}}
+<p>Username : <a href="/user/{{this.id}}">{{this.username}}</a></p>
 {{/each}}
+{{errorMessage}}

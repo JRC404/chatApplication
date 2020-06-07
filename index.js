@@ -42,9 +42,22 @@ app.get('/user/:id', async (req, res) => {
 })
 
 app.post("/", async (req, res) => {
-  let { name, email, password } = req.body;
+  let { username, email, password } = req.body;
+  let existingUser = await User.findOne({ email })
+  if (existingUser) {
+    let err = new Error(
+      `${email} A user with that email has already registered.`,
+    );
+
+    err.status = 400;
+    console.log(err);
+    res.render('index', {
+      errorMessage: `${email} already taken. A user with that email has already registered.`,
+    });
+    return;
+  }
   const user = new User({
-    name,
+    username,
     email,
     password,
   });
@@ -56,9 +69,19 @@ app.post("/", async (req, res) => {
 
 app.get("/profile", async (req, res) => {
   let user = await User.find({});
+  let errorMessage;
+  
   let userArr = user.map((user) => user.toObject());
+  console.log(user)
+  if (user.length === 0) {
+    errorMessage = "No users exist."
+  }
+  else {
+    console.log('Users exist. Get in there.')
+  }
+  
 
-  res.render("profile", { userArr });
+  res.render("profile", { userArr, errorMessage });
 });
 
 app.listen(PORT || 3000, () => {
