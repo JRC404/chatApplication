@@ -43,16 +43,17 @@ app.get('/user/:id', async (req, res) => {
 
 app.post("/", async (req, res) => {
   let { username, email, password } = req.body;
-  let existingUser = await User.findOne({ email })
-  if (existingUser) {
+  let existingEmail = await User.findOne({ email })
+  let existingUserName = await User.findOne({ username })
+  if (existingEmail || existingUserName) {
     let err = new Error(
-      `${email} A user with that email has already registered.`,
+      `${email} / ${username} A user with that email or username has already registered.`,
     );
 
     err.status = 400;
     console.log(err);
     res.render('index', {
-      errorMessage: `${email} already taken. A user with that email has already registered.`,
+      errorMessage: `${email} / ${username} A user with that email or username has already registered.`,
     });
     return;
   }
