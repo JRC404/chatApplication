@@ -42,7 +42,7 @@ app.get('/user/:id', async (req, res) => {
 })
 
 app.post("/", async (req, res) => {
-  let { username, email, password } = req.body;
+  let { username, email, password, birthday } = req.body;
   let existingEmail = await User.findOne({ email })
   let existingUserName = await User.findOne({ username })
   if (existingEmail || existingUserName) {
@@ -61,6 +61,7 @@ app.post("/", async (req, res) => {
     username,
     email,
     password,
+    birthday
   });
 
   await user.save();
